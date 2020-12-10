@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
+import sys
 
 from pathlib import Path
 
@@ -41,6 +42,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'userdata'
 ]
+if len(sys.argv) > 1 and sys.argv[1] == 'test':
+    INSTALLED_APPS.append('tests')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -126,3 +129,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+TRANSFER_FEE = 0.015

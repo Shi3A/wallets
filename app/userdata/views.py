@@ -1,4 +1,4 @@
-from django.contrib.auth import get_user_model
+from django.db import transaction
 
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -21,7 +21,11 @@ class WalletView(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'], url_path='transfer/(?P<to_pk>[^/.]+)')
     def transfer(self, request, pk=None, *args, **kwargs):
+        if pk == kwargs["to_pk"]:
+            return Response('Bad wallet id', status=400)
+
         wallet = self.get_object()
+
         amount = float(request.data.get('amount', 0))
         wallet_to = Wallet.objects.filter(pk=kwargs["to_pk"]).first()
 
@@ -32,7 +36,8 @@ class WalletView(viewsets.ModelViewSet):
             return Response('Balance cannot be negative', status=400)
 
         try:
-            wallet.transfer(amount, wallet_to)
+            with transaction.atomic():
+                wallet.transfer(amount, wallet_to)
         except:
             return Response('bad amount', status=400)
         return Response('ok')

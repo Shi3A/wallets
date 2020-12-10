@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
             name='Wallet',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('_balance', models.FloatField(default=0.0)),
+                ('balance', models.FloatField(default=0.0)),
                 ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='wallets', to=settings.AUTH_USER_MODEL)),
             ],
         ),

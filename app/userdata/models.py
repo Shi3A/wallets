@@ -6,7 +6,7 @@ UserModel = get_user_model()
 
 
 class Wallet(models.Model):
-    _balance = models.FloatField(default=0.0)
+    _balance = models.FloatField(default=0.0, db_column='balance')
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -29,7 +29,7 @@ class Wallet(models.Model):
         admin = UserModel.objects.get(username='admin')
         admin_wallet = admin.wallets.first()
 
-        fee = amount * 0.015
+        fee = amount * settings.TRANSFER_FEE
         if self.id == admin_wallet.id:
             fee = 0
 
