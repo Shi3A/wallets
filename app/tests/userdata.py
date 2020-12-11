@@ -27,6 +27,8 @@ class WalletTestCase(TestCase):
             user_wallet.balance = -1
 
     def test_transfer(self):
+        admin_wallet = self.admin.wallets.first()
+        old_balance_admin = admin_wallet.balance
         user1 = User.objects.get(username='user1')
         user1_wallet = user1.wallets.first()
         old_balance_wallet1 = user1_wallet.balance
@@ -35,11 +37,13 @@ class WalletTestCase(TestCase):
         old_balance_wallet2 = user2_wallet.balance
         send_amount = 10
         self.client.post(f'{api_prefix}/{user1_wallet.id}/transfer/{user2_wallet.id}/', {'amount': send_amount})
+        admin_wallet.refresh_from_db()
         user1_wallet.refresh_from_db()
         user2_wallet.refresh_from_db()
         fee = send_amount * settings.TRANSFER_FEE
         self.assertEqual(user1_wallet.balance, old_balance_wallet1 - send_amount - fee)
         self.assertEqual(user2_wallet.balance, old_balance_wallet2 + send_amount)
+        self.assertEqual(admin_wallet.balance, old_balance_admin + fee)
 
     def test_transfer_from_admin_without_fee(self):
         admin_wallet = self.admin.wallets.first()
