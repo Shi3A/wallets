@@ -14,11 +14,11 @@ class Command(BaseCommand):
         print('loading initial data')
         admin = user_model.objects.create_superuser('admin', 'admin@some.random.domainfffm', 'admin')
         # system wallet which receives all transfers fees
-        Wallet.objects.create(_balance=1000, owner=admin)
+        Wallet.objects.create(balance=1000, owner=admin)
 
         for user in ('user1', 'user2', 'user3'):
             u = user_model.objects.create_user(username=user,
                                                email=f'{user}@some.random.domainfffm',
                                                password='random pass for polzovatel1!')
-            Wallet.objects.create(_balance=100, owner=u)
+            Wallet.objects.create(balance=100, owner=u)
         print('loaded')
