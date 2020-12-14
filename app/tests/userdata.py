@@ -13,18 +13,12 @@ class WalletTestCase(TestCase):
         self.admin = User.objects.create_user(username='admin',
                                          email='admin@some.random.domainfffm',
                                          password='random pass for polzovatel1!')
-        Wallet.objects.create(_balance=1000, owner=self.admin)
+        Wallet.objects.create(balance=1000, owner=self.admin)
         for user in ('user1', 'user2', 'user3'):
             u = User.objects.create_user(username=user,
                                          email=f'{user}@some.random.domainfffm',
                                          password='random pass for polzovatel1!')
-            Wallet.objects.create(_balance=100, owner=u)
-
-    def test_negative_balance(self):
-        user = User.objects.get(username='user1')
-        with self.assertRaises(ValueError):
-            user_wallet = user.wallets.first()
-            user_wallet.balance = -1
+            Wallet.objects.create(balance=100, owner=u)
 
     def test_transfer(self):
         admin_wallet = self.admin.wallets.first()
@@ -90,6 +84,20 @@ class WalletTestCase(TestCase):
         user1 = User.objects.get(username='user1')
         user1_wallet = user1.wallets.first()
         old_balance_wallet1 = user1_wallet.balance
+        res = self.client.post(f'{api_prefix}/{user1_wallet.id}/transfer/{user1_wallet.id}/', {'amount': 10})
+        self.assertTrue(res.status_code == 400)
+        user1_wallet.refresh_from_db()
+        self.assertEqual(user1_wallet.balance, old_balance_wallet1)
+
+    def test_transfer_to_non_existent_wallet(self):
+        user1 = User.objects.get(username='user1')
+        user1_wallet = user1.wallets.first()
+        old_balance_wallet1 = user1_wallet.balance
+        wallet_id = 5
+        non_existtent_wallet = Wallet.objects.filter(pk=wallet_id)
+        while non_existtent_wallet.exists():
+            wallet_id += 1
+            non_existtent_wallet = Wallet.objects.filter(pk=wallet_id)
         res = self.client.post(f'{api_prefix}/{user1_wallet.id}/transfer/{user1_wallet.id}/', {'amount': 10})
         self.assertTrue(res.status_code == 400)
         user1_wallet.refresh_from_db()
