@@ -30,13 +30,10 @@ class WalletView(viewsets.ModelViewSet):
                     'amount': request.data.get('amount')
                     }
         serializer = TransferSerializer(instance=instance, data=request.data)
-        if serializer.is_valid():
-            try:
-                with transaction.atomic():
-                    WalletManager().tranfser(wallet_from, serializer.data['wallet_to'], serializer.data['amount'])
-                    res = Response('ok')
-            except:
-                res = Response('Error occurred', status=500)
-        else:
-            res = Response(f'validation failed: {serializer.errors}', status=400)
-        return res
+        if not serializer.is_valid():
+            return Response(f'validation failed: {serializer.errors}', status=400)
+
+        with transaction.atomic():
+
+            WalletManager().transfer(wallet_from, serializer.data['wallet_to'], serializer.data['amount'])
+        return Response('ok')

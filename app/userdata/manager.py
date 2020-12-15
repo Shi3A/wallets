@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 
 
 class WalletManager:
-    def tranfser(self, from_, to, amount):
+    def transfer(self, from_, to, amount):
         admin = get_user_model().objects.get(username='admin')
         admin_wallet = admin.wallets.first()
 

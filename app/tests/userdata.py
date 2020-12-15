@@ -93,12 +93,8 @@ class WalletTestCase(TestCase):
         user1 = User.objects.get(username='user1')
         user1_wallet = user1.wallets.first()
         old_balance_wallet1 = user1_wallet.balance
-        wallet_id = 5
-        non_existtent_wallet = Wallet.objects.filter(pk=wallet_id)
-        while non_existtent_wallet.exists():
-            wallet_id += 1
-            non_existtent_wallet = Wallet.objects.filter(pk=wallet_id)
-        res = self.client.post(f'{api_prefix}/{user1_wallet.id}/transfer/{user1_wallet.id}/', {'amount': 10})
+        non_existtent_wallet = Wallet.objects.latest('pk').pk + 1
+        res = self.client.post(f'{api_prefix}/{user1_wallet.id}/transfer/{non_existtent_wallet}/', {'amount': 10})
         self.assertTrue(res.status_code == 400)
         user1_wallet.refresh_from_db()
         self.assertEqual(user1_wallet.balance, old_balance_wallet1)
